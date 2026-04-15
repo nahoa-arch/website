@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Peak Speed vs Real-World Speed — Nahoa M</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #0b1220;
+    color: #e6edf7;
+    padding: 24px;
+  }
+  h1 { font-weight: 500; font-size: 22px; margin: 0 0 4px; letter-spacing: 0.3px; }
+  .sub { color: #7d8ba3; font-size: 13px; margin-bottom: 20px; max-width: 900px; line-height: 1.5; }
+  .wrap {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .panel {
+    background: #111a2e;
+    border: 1px solid #1f2c47;
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .panel h2 {
+    font-size: 13px;
+    font-weight: 500;
+    color: #9fb0cc;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    margin: 0 0 14px;
+  }
+  .controls {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .controls label { font-size: 13px; color: #9fb0cc; }
+  .controls input[type=range] { width: 320px; accent-color: #4ea1ff; }
+  .controls button {
+    background: #1b2c4f; color: #e6edf7;
+    border: 1px solid #2e446e;
+    padding: 8px 16px; border-radius: 6px;
+    font-size: 13px; cursor: pointer;
+  }
+  .controls button:hover { background: #24375f; }
+  .readout {
+    font-variant-numeric: tabular-nums;
+    font-size: 22px; font-weight: 500;
+    color: #4ea1ff; min-width: 80px;
+  }
+  svg { width: 100%; display: block; }
+  .legend {
+    display: flex; gap: 18px; font-size: 12px; color: #9fb0cc;
+    margin-top: 10px; flex-wrap: wrap;
+  }
+  .swatch {
+    display: inline-block; width: 14px; height: 3px; border-radius: 2px;
+    vertical-align: middle; margin-right: 6px;
+  }
+  .swatch.block { height: 10px; border-radius: 2px; }
+  .note {
+    font-size: 12px; color: #8aa0c4; line-height: 1.6;
+    max-width: 980px;
+  }
+  .note strong { color: #cdd9ee; }
+  .status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 12px;
+  }
+  .status {
+    background: #0e1629;
+    border: 1px solid #1f2c47;
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .status .who { font-size: 11px; color: #7d8ba3; text-transform: uppercase; letter-spacing: 1.2px; }
+  .status .config { font-size: 20px; font-variant-numeric: tabular-nums; margin-top: 6px; font-weight: 500; }
+  .status.cat .who { color: #7ad48a; }
+  .status.hp  .who { color: #ffb56b; }
+  .status.cat .config { color: #b9eac1; }
+  .status.hp  .config { color: #ffd19a; }
+
+  .stat-strip {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  .big-stat {
+    background: #0e1629;
+    border: 1px solid #1f2c47;
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .big-stat .label { font-size: 10px; color: #7d8ba3; text-transform: uppercase; letter-spacing: 1.3px; }
+  .big-stat .number { font-size: 32px; font-weight: 500; font-variant-numeric: tabular-nums; margin-top: 4px; }
+  .big-stat .caption { font-size: 11px; color: #8aa0c4; margin-top: 4px; }
+  .big-stat.cat .number { color: #7ad48a; }
+  .big-stat.hp  .number { color: #ffb56b; }
+</style>
+</head>
+<body>
+
+<h1>Peak Speed vs Real-World Speed</h1>
+<div class="sub">High-performance catamarans win the spec sheet. Big rigs, light displacement, enormous sail area per ton. The peak numbers on the brochure are genuine — on a flat day, at the right wind angle, with a prepared crew on deck. On a real passage, that peak performance is rarely the performance you actually sail. The Nahoa M is engineered for the other 95% of the time — high average performance, without the high-performance downside.</div>
+
+<div class="wrap">
+
+  <!-- STAT STRIP -->
+  <div class="panel">
+    <h2>On a typical trade-wind passage (12–25 kts average)</h2>
+    <div class="stat-strip">
+      <div class="big-stat cat">
+        <div class="label">Nahoa M — time at full sail</div>
+        <div class="number">~ 68%</div>
+        <div class="caption">Carrying the efficient sail plan through most of the passage wind range</div>
+      </div>
+      <div class="big-stat hp">
+        <div class="label">High-performance cat — time at full sail</div>
+        <div class="number">~ 31%</div>
+        <div class="caption">Reefed down from overpowered through most of the passage wind range</div>
+      </div>
+      <div class="big-stat cat">
+        <div class="label">Nahoa M — reef changes per week</div>
+        <div class="number">~ 3–4</div>
+        <div class="caption">Typical for a moderate trade-wind crossing</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="panel">
+    <div class="controls">
+      <label>True wind speed (beam reach)</label>
+      <input id="wind" type="range" min="0" max="55" step="0.5" value="0">
+      <div class="readout"><span id="windVal">0</span> kts</div>
+      <button id="play">▶ Sweep wind</button>
+      <button id="reset">Reset</button>
+    </div>
+    <div class="status-grid">
+      <div class="status cat">
+        <div class="who">Nahoa M — current sail plan</div>
+        <div class="config" id="catConfig">full main + genoa</div>
+      </div>
+      <div class="status hp">
+        <div class="who">High-performance cat — current sail plan</div>
+        <div class="config" id="hpConfig">full main + genoa</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- REEFING LADDER CHART -->
+  <div class="panel">
+    <h2>Sail plan vs true wind speed</h2>
+    <svg viewBox="0 0 1100 380" id="reefSvg" preserveAspectRatio="xMidYMid meet">
+
+      <rect id="passageBand" fill="#4ea1ff" opacity="0.08"/>
+      <text id="passageLabel" fill="#7aa8de" font-size="10" font-style="italic"
+            text-anchor="middle" font-weight="500">typical trade-wind passage range</text>
+
+      <line x1="200" y1="330" x2="1070" y2="330" stroke="#2e4a7a" stroke-width="1"/>
+      <line x1="200" y1="40"  x2="200"  y2="330" stroke="#2e4a7a" stroke-width="1"/>
+
+      <g font-size="12" fill="#cdd9ee" font-family="inherit">
+        <text x="190" y="72"  text-anchor="end">Full main + genoa</text>
+        <text x="190" y="130" text-anchor="end">Reef 1 + jib</text>
+        <text x="190" y="188" text-anchor="end">Reef 2 + staysail</text>
+        <text x="190" y="246" text-anchor="end">Reef 3 + staysail</text>
+        <text x="190" y="304" text-anchor="end">Trysail / storm jib</text>
+      </g>
+
+      <line x1="200" y1="98"  x2="1070" y2="98"  stroke="#1f2c47"/>
+      <line x1="200" y1="156" x2="1070" y2="156" stroke="#1f2c47"/>
+      <line x1="200" y1="214" x2="1070" y2="214" stroke="#1f2c47"/>
+      <line x1="200" y1="272" x2="1070" y2="272" stroke="#1f2c47"/>
+
+      <g font-size="10" fill="#7d8ba3" font-family="inherit">
+        <text x="200"  y="350" text-anchor="middle">0</text>
+        <text x="374"  y="350" text-anchor="middle">10</text>
+        <text x="548"  y="350" text-anchor="middle">20</text>
+        <text x="722"  y="350" text-anchor="middle">30</text>
+        <text x="896"  y="350" text-anchor="middle">40</text>
+        <text x="1070" y="350" text-anchor="middle">50</text>
+        <text x="635"  y="370" text-anchor="middle" fill="#9fb0cc" font-size="11">true wind speed (kts)</text>
+        <text x="40"  y="185" text-anchor="middle" fill="#9fb0cc" font-size="11"
+              transform="rotate(-90 40 185)">sail plan in use</text>
+      </g>
+
+      <g id="marginBands"></g>
+
+      <path id="hpStep"  fill="none" stroke="#ffb56b" stroke-width="2.8" stroke-linejoin="miter"/>
+      <path id="catStep" fill="none" stroke="#7ad48a" stroke-width="3"   stroke-linejoin="miter"/>
+
+      <g id="hpDots"></g>
+      <g id="catDots"></g>
+
+      <line id="windCursor" stroke="#4ea1ff" stroke-width="1.2" stroke-dasharray="3 4"/>
+      <circle id="catCursorDot" r="5" fill="#7ad48a" stroke="#0b1220" stroke-width="1.5"/>
+      <circle id="hpCursorDot"  r="5" fill="#ffb56b" stroke="#0b1220" stroke-width="1.5"/>
+
+    </svg>
+    <div class="legend">
+      <div><span class="swatch" style="background:#7ad48a"></span>Nahoa M — high-average-performance cat</div>
+      <div><span class="swatch" style="background:#ffb56b"></span>High-performance cat — big rig, light displacement, race-bred sail plan</div>
+      <div><span class="swatch block" style="background:#4ea1ff33"></span>Typical passage wind range (12–25 kts)</div>
+    </div>
+  </div>
+
+  <div class="panel note">
+    <strong>The brochure shows peak speed. The passage shows average speed.</strong>
+    In the typical passage wind range — the blue band across the middle of the chart — a
+    high-performance cat is already down to Reef 1 with the jib by 16 knots, and Reef 2 by 22.
+    The Nahoa M is still carrying full main and genoa through most of the same range. Which boat
+    is actually faster, averaged across a week at sea? The one that's carrying an efficient,
+    well-trimmed sail plan most of the time — not the one that's reefed below its designed
+    working load to stay within its narrower stability envelope.
+    <br><br>
+    High-performance cruisers are an impressive product for a specific buyer: a prepared crew,
+    day-sailing or short hops, who want the top of the speed chart and accept the trade —
+    constant sail management, an unforgiving gust response, a boat that punishes a late reef,
+    and a maintenance schedule to match. That's a real category.
+    <br><br>
+    The Nahoa M is built for the sailor who wants <strong>high performance on average</strong> —
+    the fast, efficient crossing, the relaxed night watch, the boat a couple or a family can
+    handle without drama in 30 knots. You give up the top 10% of outright speed. What you buy is
+    a much larger window in which the boat sails itself, the autopilot works easily, the crew
+    isn't on sheets every watch, and nobody arrives exhausted.
+    <br><br>
+    <em>Illustrative thresholds based on typical sail-plan envelopes for each category on a beam reach.
+    Time-at-full-sail estimates derived from NOAA trade-wind climatology (Atlantic westbound) and
+    the sail envelopes shown above. Actual passage conditions vary with route, season, and crew preference.</em>
+  </div>
+
+</div>
+
+<script>
+  const CONFIGS = [
+    "full main + genoa",
+    "reef 1 + jib",
+    "reef 2 + staysail",
+    "reef 3 + staysail",
+    "trysail / storm jib"
+  ];
+
+  // High-performance cat thresholds — reefs early
+  const HP_THRESHOLDS  = [0, 16, 22, 28, 36];
+  // Nahoa M thresholds — carries full sail deeper
+  const CAT_THRESHOLDS = [0, 24, 32, 40, 48];
+
+  function configFor(thresholds, v) {
+    let idx = 0;
+    for (let i = 0; i < thresholds.length; i++) {
+      if (v >= thresholds[i]) idx = i;
+    }
+    return idx;
+  }
+
+  const X0 = 200, X1 = 1070;
+  const V_MAX = 50;
+  const Y_ROWS = [70, 128, 186, 244, 302];
+  const sx = v => X0 + Math.min(v, V_MAX) / V_MAX * (X1 - X0);
+
+  const pb = document.getElementById("passageBand");
+  pb.setAttribute("x", sx(12));
+  pb.setAttribute("y", 40);
+  pb.setAttribute("width", sx(25) - sx(12));
+  pb.setAttribute("height", 290);
+  const pl = document.getElementById("passageLabel");
+  pl.setAttribute("x", (sx(12) + sx(25)) / 2);
+  pl.setAttribute("y", 54);
+
+  function buildStep(thresholds) {
+    let d = "";
+    let prevY = Y_ROWS[0];
+    d += "M" + sx(0) + " " + prevY + " ";
+    for (let i = 1; i < thresholds.length; i++) {
+      const xTransition = sx(thresholds[i]);
+      d += "L" + xTransition + " " + prevY + " ";
+      const newY = Y_ROWS[i];
+      d += "L" + xTransition + " " + newY + " ";
+      prevY = newY;
+    }
+    d += "L" + sx(V_MAX) + " " + prevY + " ";
+    return d;
+  }
+  document.getElementById("hpStep").setAttribute("d",  buildStep(HP_THRESHOLDS));
+  document.getElementById("catStep").setAttribute("d", buildStep(CAT_THRESHOLDS));
+
+  function placeDots(groupId, thresholds, color) {
+    const g = document.getElementById(groupId);
+    for (let i = 1; i < thresholds.length; i++) {
+      const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      dot.setAttribute("cx", sx(thresholds[i]));
+      dot.setAttribute("cy", Y_ROWS[i]);
+      dot.setAttribute("r", 4.5);
+      dot.setAttribute("fill", color);
+      g.appendChild(dot);
+
+      const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      label.setAttribute("x", sx(thresholds[i]));
+      label.setAttribute("y", Y_ROWS[i] - 9);
+      label.setAttribute("text-anchor", "middle");
+      label.setAttribute("font-size", "10");
+      label.setAttribute("fill", color);
+      label.setAttribute("font-weight", "600");
+      label.textContent = thresholds[i] + " kts";
+      g.appendChild(label);
+    }
+  }
+  placeDots("hpDots",  HP_THRESHOLDS,  "#ffb56b");
+  placeDots("catDots", CAT_THRESHOLDS, "#7ad48a");
+
+  const bandGroup = document.getElementById("marginBands");
+  for (let i = 1; i < HP_THRESHOLDS.length; i++) {
+    const x1 = sx(HP_THRESHOLDS[i]);
+    const x2 = sx(CAT_THRESHOLDS[i]);
+    if (x2 <= x1) continue;
+    const rowTop = Y_ROWS[i-1] - 24;
+    const rowBottom = Y_ROWS[i-1] + 24;
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("x", x1);
+    rect.setAttribute("y", rowTop);
+    rect.setAttribute("width", x2 - x1);
+    rect.setAttribute("height", rowBottom - rowTop);
+    rect.setAttribute("fill", "#7ad48a");
+    rect.setAttribute("opacity", "0.10");
+    bandGroup.appendChild(rect);
+
+    const gap = CAT_THRESHOLDS[i] - HP_THRESHOLDS[i];
+    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    label.setAttribute("x", (x1 + x2) / 2);
+    label.setAttribute("y", rowTop - 4);
+    label.setAttribute("text-anchor", "middle");
+    label.setAttribute("font-size", "10");
+    label.setAttribute("fill", "#7ad48a");
+    label.setAttribute("font-style", "italic");
+    label.textContent = "+" + gap + " kts";
+    bandGroup.appendChild(label);
+  }
+
+  const wind = document.getElementById("wind");
+  const windVal = document.getElementById("windVal");
+  const windCursor = document.getElementById("windCursor");
+  const catCursorDot = document.getElementById("catCursorDot");
+  const hpCursorDot = document.getElementById("hpCursorDot");
+  const catConfig = document.getElementById("catConfig");
+  const hpConfig = document.getElementById("hpConfig");
+
+  function update() {
+    const v = parseFloat(wind.value);
+    windVal.textContent = v.toFixed(0);
+
+    const cx = sx(v);
+    windCursor.setAttribute("x1", cx);
+    windCursor.setAttribute("x2", cx);
+    windCursor.setAttribute("y1", 40);
+    windCursor.setAttribute("y2", 330);
+
+    const catIdx = configFor(CAT_THRESHOLDS, v);
+    const hpIdx  = configFor(HP_THRESHOLDS,  v);
+    catCursorDot.setAttribute("cx", cx);
+    catCursorDot.setAttribute("cy", Y_ROWS[catIdx]);
+    hpCursorDot.setAttribute("cx", cx);
+    hpCursorDot.setAttribute("cy", Y_ROWS[hpIdx]);
+
+    catConfig.textContent = CONFIGS[catIdx];
+    hpConfig.textContent  = CONFIGS[hpIdx];
+  }
+  wind.addEventListener("input", update);
+  update();
+
+  let playing = false, raf = null;
+  document.getElementById("play").addEventListener("click", () => {
+    if (playing) { cancelAnimationFrame(raf); playing = false; return; }
+    playing = true;
+    let v = 0;
+    const step = () => {
+      v += 0.2;
+      if (v >= 55) { v = 55; playing = false; }
+      wind.value = v;
+      update();
+      if (playing) raf = requestAnimationFrame(step);
+    };
+    step();
+  });
+  document.getElementById("reset").addEventListener("click", () => {
+    playing = false; cancelAnimationFrame(raf);
+    wind.value = 0; update();
+  });
+</script>
+
+</body>
+</html>
