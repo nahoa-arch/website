@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Righting Moment — Nahoa M v6</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #0b1220;
+    color: #e6edf7;
+    padding: 24px;
+  }
+  h1 { font-weight: 500; font-size: 20px; margin: 0 0 4px; letter-spacing: 0.3px; }
+  .sub { color: #7d8ba3; font-size: 13px; margin-bottom: 20px; }
+  .wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .panel {
+    background: #111a2e;
+    border: 1px solid #1f2c47;
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .panel h2 {
+    font-size: 13px;
+    font-weight: 500;
+    color: #9fb0cc;
+    text-transform: uppercase;
+    letter-spacing: 1.4px;
+    margin: 0 0 14px;
+  }
+  .controls {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .controls label { font-size: 13px; color: #9fb0cc; }
+  .controls input[type=range] { width: 280px; accent-color: #4ea1ff; }
+  .controls button {
+    background: #1b2c4f; color: #e6edf7;
+    border: 1px solid #2e446e;
+    padding: 8px 16px; border-radius: 6px;
+    font-size: 13px; cursor: pointer;
+  }
+  .controls button:hover { background: #24375f; }
+  .angle-readout {
+    font-variant-numeric: tabular-nums;
+    font-size: 22px; font-weight: 500;
+    color: #4ea1ff; min-width: 90px;
+  }
+  svg { width: 100%; display: block; }
+  .legend {
+    display: flex; gap: 18px; font-size: 12px; color: #9fb0cc;
+    margin-top: 10px; flex-wrap: wrap;
+  }
+  .swatch {
+    display: inline-block; width: 14px; height: 3px; border-radius: 2px;
+    vertical-align: middle; margin-right: 6px;
+  }
+  .note {
+    grid-column: 1 / -1;
+    font-size: 12px; color: #8aa0c4; line-height: 1.6;
+    max-width: 980px;
+  }
+  .note strong { color: #cdd9ee; }
+  .badge {
+    display: inline-block;
+    font-size: 10px; padding: 2px 6px; border-radius: 3px;
+    background: #1f2c47; color: #9fb0cc; margin-left: 8px;
+  }
+  .badge.lift { background: #1b3d2a; color: #7ad48a; }
+</style>
+</head>
+<body>
+
+<h1>Righting Moment — Catamaran vs Monohull</h1>
+<div class="sub">Righting arm (GZ) versus heel angle. The catamaran's peak — GZmax — is the value ISO 12215-5 evaluates for inversion resistance.</div>
+
+<div class="wrap">
+
+  <div class="panel controls">
+    <label>Heel angle</label>
+    <input id="heel" type="range" min="0" max="90" step="0.25" value="0">
+    <div class="angle-readout"><span id="heelVal">0</span>°</div>
+    <span id="liftBadge" class="badge">windward hull: floating</span>
+    <button id="play">▶ Play sweep</button>
+    <button id="reset">Reset</button>
+  </div>
+
+  <div class="panel">
+    <h2>Catamaran heel behaviour</h2>
+    <svg viewBox="0 0 400 320" id="boatSvg">
+      <rect x="0" y="0" width="400" height="320" fill="#111a2e"/>
+      <rect x="0" y="180" width="400" height="140" fill="#0b1a33"/>
+
+      <g id="boatGroup">
+        <g id="cat">
+          <rect x="118" y="155" width="176" height="9"
+                fill="#2c4270" stroke="#6a9ad6" stroke-width="1"/>
+
+          <path d="M 248 155
+                   L 294 155
+                   L 294 186
+                   C 294 200, 286 212, 271 212
+                   C 256 212, 248 200, 248 186
+                   Z"
+                fill="#3a5a8c" stroke="#6a9ad6" stroke-width="1.3"/>
+          <path d="M 267 212 L 267 230 L 275 230 L 275 212 Z"
+                fill="#2a4368" stroke="#6a9ad6" stroke-width="1"/>
+
+          <path d="M 118 155
+                   L 164 155
+                   L 164 186
+                   C 164 200, 156 212, 141 212
+                   C 126 212, 118 200, 118 186
+                   Z"
+                fill="#3a5a8c" stroke="#6a9ad6" stroke-width="1.3"/>
+          <path d="M 137 212 L 137 230 L 145 230 L 145 212 Z"
+                fill="#2a4368" stroke="#6a9ad6" stroke-width="1"/>
+
+          <line x1="206" y1="155" x2="206" y2="20"
+                stroke="#d4deee" stroke-width="2.6"/>
+
+          <circle id="cogDot" cx="206" cy="150" r="3.8" fill="#ffcf5a"/>
+          <circle id="buoDot" cx="206" cy="195" r="3.8" fill="#5af0a8"/>
+        </g>
+      </g>
+
+      <rect x="0" y="180" width="400" height="140" fill="#0b1a33" opacity="0.65"/>
+      <line x1="0" y1="180" x2="400" y2="180" stroke="#3d6296" stroke-width="1.2"/>
+
+      <text x="8" y="176" fill="#5a7099" font-size="10">waterline</text>
+      <circle cx="271" cy="180" r="2.5" fill="#ff6b6b"/>
+      <text x="278" y="177" fill="#ff6b6b" font-size="9.5">pivot</text>
+      <text x="8" y="22" fill="#9fb0cc" font-size="11">
+        <tspan fill="#ffcf5a">●</tspan> centre of gravity (G)
+        <tspan dx="14" fill="#5af0a8">●</tspan> centre of buoyancy (B)
+      </text>
+      <text x="8" y="38" fill="#9fb0cc" font-size="11">
+        GZ = horizontal offset between G and B
+      </text>
+    </svg>
+    <div style="font-size: 12px; color: #7d8ba3; margin-top: 8px; line-height: 1.5;">
+      At rest, both hulls float with a significant portion submerged — the waterline cuts through each hull.
+      As heel increases, the boat rotates about the leeward hull; the windward hull lifts until its bottom
+      just clears the waterline at GZmax (≈14°). That moment is the maximum righting lever the boat can
+      generate. Past it, nothing left to push back.
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Righting arm (GZ) curves</h2>
+    <svg viewBox="0 0 400 300" id="curveSvg">
+      <line x1="50" y1="260" x2="380" y2="260" stroke="#2e4a7a" stroke-width="1"/>
+      <line x1="50" y1="30"  x2="50"  y2="260" stroke="#2e4a7a" stroke-width="1"/>
+      <g font-size="10" fill="#7d8ba3" font-family="inherit">
+        <text x="50"  y="275" text-anchor="middle">0°</text>
+        <text x="123" y="275" text-anchor="middle">20°</text>
+        <text x="197" y="275" text-anchor="middle">40°</text>
+        <text x="270" y="275" text-anchor="middle">60°</text>
+        <text x="343" y="275" text-anchor="middle">80°</text>
+        <text x="215" y="293" text-anchor="middle" fill="#9fb0cc">heel angle</text>
+        <text x="18"  y="150" text-anchor="middle" fill="#9fb0cc"
+              transform="rotate(-90 18 150)">righting arm GZ (m)</text>
+      </g>
+      <g font-size="9" fill="#7d8ba3">
+        <text x="46" y="263" text-anchor="end">0</text>
+        <text x="46" y="225" text-anchor="end">0.5</text>
+        <text x="46" y="187" text-anchor="end">1.0</text>
+        <text x="46" y="149" text-anchor="end">1.5</text>
+        <text x="46" y="111" text-anchor="end">2.0</text>
+        <text x="46" y="73"  text-anchor="end">2.5</text>
+      </g>
+      <line x1="50" y1="225" x2="380" y2="225" stroke="#1f2c47" stroke-width="1"/>
+      <line x1="50" y1="187" x2="380" y2="187" stroke="#1f2c47" stroke-width="1"/>
+      <line x1="50" y1="149" x2="380" y2="149" stroke="#1f2c47" stroke-width="1"/>
+      <line x1="50" y1="111" x2="380" y2="111" stroke="#1f2c47" stroke-width="1"/>
+      <line x1="50" y1="73"  x2="380" y2="73"  stroke="#1f2c47" stroke-width="1"/>
+
+      <path id="monoCurve" fill="none" stroke="#c986ff" stroke-width="2.4"/>
+      <path id="wideCurve" fill="none" stroke="#7ad48a" stroke-width="2.6"/>
+
+      <line id="widePeakLine" stroke="#7ad48a" stroke-width="1" stroke-dasharray="2 3"/>
+      <circle id="widePeakDot" r="3.5" fill="#7ad48a"/>
+      <text id="widePeakLabel" fill="#7ad48a" font-size="11" font-weight="600">GZmax</text>
+
+      <circle id="indicator" cx="50" cy="260" r="4.5" fill="#ffffff"/>
+      <line id="indicatorLine" stroke="#ffffff44" stroke-width="1" stroke-dasharray="2 3"/>
+    </svg>
+    <div class="legend">
+      <div><span class="swatch" style="background:#c986ff"></span>Monohull (keelboat)</div>
+      <div><span class="swatch" style="background:#7ad48a"></span>Nahoa M (catamaran)</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>How to read it.</strong> The catamaran curve climbs steeply and peaks near 14°. That peak is
+    GZmax — the maximum righting lever the boat can ever generate, and the value ISO 12215-5 evaluates for
+    inversion resistance. Past the peak the curve declines gradually and eventually crosses zero. The
+    monohull curve builds slowly, peaks near 60–65°, and stays positive well past 90° — a keelboat is
+    actively fighting capsize the whole way through a knockdown. <br><br>
+
+    <em>Catamaran curve approximates Archi-Delion's 15 April 2026 data. Monohull curve is a representative
+    ballasted keelboat shape. Use Archi-Delion's official curves for any technical publication.</em>
+  </div>
+
+</div>
+
+<script>
+  function catGZ(deg, opts) {
+    const { peak, peakVal, zeroAt } = opts;
+    if (deg <= peak) return peakVal * Math.sin((deg / peak) * Math.PI / 2);
+    const t = (deg - peak) / (zeroAt - peak);
+    return peakVal * (1 - Math.pow(t, 1.05));
+  }
+  const wideGZ = d => catGZ(d, { peak: 14, peakVal: 2.55, zeroAt: 73 });
+  const monoGZ = d => 1.05 * Math.sin(d * Math.PI / 180 * 1.45);
+
+  const X0 = 50, X1 = 380, Y0 = 260, Y1 = 30;
+  const xMin = 0, xMax = 90, yMin = 0, yMax = 3.0;
+  const sx = d => X0 + (d - xMin) / (xMax - xMin) * (X1 - X0);
+  const sy = g => Y0 - (g - yMin) / (yMax - yMin) * (Y0 - Y1);
+
+  function buildPath(fn) {
+    let d = "";
+    for (let a = 0; a <= 90; a += 0.5) {
+      const v = fn(a);
+      if (v < 0) break;
+      const x = sx(a), y = sy(Math.max(v, 0));
+      d += (a === 0 ? "M" : "L") + x.toFixed(2) + " " + y.toFixed(2) + " ";
+    }
+    return d;
+  }
+  document.getElementById("monoCurve").setAttribute("d", buildPath(monoGZ));
+  document.getElementById("wideCurve").setAttribute("d", buildPath(wideGZ));
+
+  const wpX = sx(14), wpY = sy(wideGZ(14));
+  document.getElementById("widePeakDot").setAttribute("cx", wpX);
+  document.getElementById("widePeakDot").setAttribute("cy", wpY);
+  document.getElementById("widePeakLine").setAttribute("x1", wpX);
+  document.getElementById("widePeakLine").setAttribute("x2", wpX);
+  document.getElementById("widePeakLine").setAttribute("y1", Y0);
+  document.getElementById("widePeakLine").setAttribute("y2", wpY);
+  document.getElementById("widePeakLabel").setAttribute("x", wpX + 6);
+  document.getElementById("widePeakLabel").setAttribute("y", wpY - 4);
+
+  const heel = document.getElementById("heel");
+  const heelVal = document.getElementById("heelVal");
+  const boatGroup = document.getElementById("boatGroup");
+  const indicator = document.getElementById("indicator");
+  const indicatorLine = document.getElementById("indicatorLine");
+  const buoDot = document.getElementById("buoDot");
+  const liftBadge = document.getElementById("liftBadge");
+
+  const PIVOT_X = 271;
+  const PIVOT_Y = 180;
+  const GZMAX_DEG = 14;
+
+  function update() {
+    const a = parseFloat(heel.value);
+    heelVal.textContent = a.toFixed(0);
+
+    boatGroup.setAttribute(
+      "transform",
+      `rotate(${a} ${PIVOT_X} ${PIVOT_Y})`
+    );
+
+    const t = Math.min(a / GZMAX_DEG, 1);
+    const bx = 206 + (271 - 206) * t;
+    buoDot.setAttribute("cx", bx.toFixed(2));
+
+    if (a < 0.5) {
+      liftBadge.textContent = "windward hull: floating";
+      liftBadge.classList.remove("lift");
+    } else if (a < GZMAX_DEG) {
+      liftBadge.textContent = `windward hull: lifting (${Math.round(t * 100)}%)`;
+      liftBadge.classList.remove("lift");
+    } else {
+      liftBadge.textContent = "windward hull: fully clear — past GZmax";
+      liftBadge.classList.add("lift");
+    }
+
+    const g = wideGZ(a);
+    const x = sx(a), y = sy(Math.max(g, 0));
+    indicator.setAttribute("cx", x);
+    indicator.setAttribute("cy", y);
+    indicatorLine.setAttribute("x1", x);
+    indicatorLine.setAttribute("x2", x);
+    indicatorLine.setAttribute("y1", Y1);
+    indicatorLine.setAttribute("y2", Y0);
+  }
+  heel.addEventListener("input", update);
+  update();
+
+  let playing = false, raf = null;
+  document.getElementById("play").addEventListener("click", () => {
+    if (playing) { cancelAnimationFrame(raf); playing = false; return; }
+    playing = true;
+    let v = 0;
+    const step = () => {
+      v += 0.35;
+      if (v >= 90) { v = 90; playing = false; }
+      heel.value = v;
+      update();
+      if (playing) raf = requestAnimationFrame(step);
+    };
+    step();
+  });
+  document.getElementById("reset").addEventListener("click", () => {
+    playing = false; cancelAnimationFrame(raf);
+    heel.value = 0; update();
+  });
+</script>
+
+</body>
+</html>
