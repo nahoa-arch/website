@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Monohull Heel — Righting Moment</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0a0e14;
+    color: #e8ecf2;
+    padding: 30px 20px;
+    min-height: 100vh;
+  }
+  .container { max-width: 1140px; margin: 0 auto; }
+  h1 { font-size: 26px; font-weight: 600; color: #fff; margin-bottom: 4px; letter-spacing: -0.5px; }
+  .subtitle { color: #8b96a8; font-size: 14px; margin-bottom: 20px; }
+  .panel {
+    background: #0f131b;
+    border: 1px solid #1f252f;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  svg { width: 100%; height: auto; display: block; }
+  .controls {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  button {
+    padding: 10px 18px;
+    background: #1b2230;
+    border: 1px solid #4a90e2;
+    color: #fff;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+  }
+  button:hover { background: #233049; }
+  .angle-readout {
+    background: #141923;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid #2a323f;
+    font-size: 13px;
+    color: #c9d1dc;
+  }
+  .angle-readout strong { color: #6d8abf; font-size: 16px; font-weight: 600; }
+  input[type=range] { flex: 1; min-width: 200px; accent-color: #6d8abf; }
+  .caption {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: rgba(109,138,191,0.08);
+    border-left: 3px solid #6d8abf;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #c9d1dc;
+    line-height: 1.5;
+    min-height: 48px;
+    transition: all 0.3s;
+  }
+  .caption strong { color: #fff; }
+  .axis-label { fill: #8b96a8; font-size: 11px; font-family: inherit; }
+  .axis-tick { fill: #6b7689; font-size: 10px; font-family: inherit; }
+  .grid line { stroke: #1a2029; stroke-width: 1; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Monohull — the keel as pendulum</h1>
+  <p class="subtitle">Drag the slider or press Play. Watch the keel swing out — and the curve respond.</p>
+
+  <div class="panel">
+    <!-- Curve chart -->
+    <svg viewBox="0 0 1000 260" id="chart" aria-label="Righting moment curve">
+      <g class="grid" id="grid"></g>
+      <g id="axes"></g>
+      <line x1="70" y1="195" x2="960" y2="195" stroke="#4a5566" stroke-width="1.2"/>
+      <path id="curve" fill="none" stroke="#6d8abf" stroke-width="2.5" />
+      <path id="curveFilled" fill="#6d8abf" opacity="0.15" />
+      <circle id="dot" cx="70" cy="195" r="6" fill="#6d8abf" stroke="#0f131b" stroke-width="2"/>
+      <g id="markers"></g>
+    </svg>
+
+    <!-- Boat visualization -->
+    <svg viewBox="0 0 1000 480" id="boatSvg" aria-label="Monohull heel" style="margin-top:8px;">
+      <!-- Sky / background -->
+      <rect x="0" y="0" width="1000" height="320" fill="#0a0e14"/>
+      <!-- Water body -->
+      <rect x="0" y="320" width="1000" height="160" fill="#0d1826"/>
+      <!-- Water line with subtle waves -->
+      <path d="M 0 320 Q 50 316 100 320 T 200 320 T 300 320 T 400 320 T 500 320 T 600 320 T 700 320 T 800 320 T 900 320 T 1000 320 L 1000 325 L 0 325 Z" fill="#1a3652" opacity="0.6"/>
+      <line x1="0" y1="320" x2="1000" y2="320" stroke="#3d5a7a" stroke-width="1.5" opacity="0.8"/>
+
+      <!-- Boat group (rotates) -->
+      <g id="boat" transform="rotate(0, 500, 320)">
+        <!-- Sail -->
+        <path d="M 500 60 L 500 310 L 575 290 Z" fill="#e8ecf2" opacity="0.9"/>
+        <!-- Mast -->
+        <line x1="500" y1="60" x2="500" y2="318" stroke="#3a4556" stroke-width="4"/>
+        <line x1="500" y1="60" x2="500" y2="55" stroke="#3a4556" stroke-width="4"/>
+        <circle cx="500" cy="55" r="3" fill="#3a4556"/>
+        <!-- Deck/cabin -->
+        <rect x="460" y="306" width="80" height="8" fill="#b5bcc9" rx="2"/>
+        <rect x="478" y="296" width="44" height="10" fill="#8b96a8" rx="2"/>
+        <!-- Hull (V shape) -->
+        <path d="M 440 314 L 560 314 L 540 352 Q 500 372 460 352 Z" fill="#6d7a8e"/>
+        <path d="M 440 314 L 560 314 L 540 352 Q 500 372 460 352 Z" fill="none" stroke="#3a4556" stroke-width="1.2"/>
+        <!-- Keel shaft -->
+        <rect x="493" y="370" width="14" height="75" fill="#4a5566"/>
+        <!-- Keel bulb -->
+        <ellipse cx="500" cy="450" rx="28" ry="10" fill="#2a323f"/>
+        <ellipse cx="500" cy="448" rx="24" ry="6" fill="#3d4a5c"/>
+      </g>
+
+      <!-- Angle indicator arc -->
+      <g id="angleIndicator" opacity="0.5"></g>
+    </svg>
+
+    <div style="margin-top:16px;">
+      <div class="controls">
+        <button id="playBtn">▶ Play</button>
+        <button id="resetBtn">↺ Reset</button>
+        <div class="angle-readout">Heel: <strong id="angleLabel">0°</strong></div>
+        <input type="range" id="slider" min="0" max="180" value="0" step="0.5">
+      </div>
+      <div class="caption" id="caption">
+        <strong>At rest.</strong> The boat sits upright. The keel hangs straight down. No heel, no restoring force needed.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- curve geometry ---------- */
+const X0 = 70, X1 = 960, YZERO = 195, SCALE = 1.2;
+const YMAX = 220, YMIN = -50;
+
+function xOf(deg) { return X0 + (deg / 180) * (X1 - X0); }
+function yOf(val) { return YZERO - val * SCALE; }
+
+function monoRM(deg) {
+  const d = Math.abs(deg);
+  if (d >= 180) return 0;
+  const w = 10 * 9.81;
+  let gz;
+  if (d <= 55) {
+    gz = 0.9 * Math.sin((d / 55) * Math.PI / 2);
+  } else if (d <= 120) {
+    const t = (d - 55) / 65;
+    gz = 0.9 * Math.cos(t * Math.PI / 2);
+  } else {
+    const t = (d - 120) / 60;
+    gz = -0.4 * Math.sin(t * Math.PI);
+  }
+  return gz * w;
+}
+
+/* ---------- grid & axes ---------- */
+(function drawAxes() {
+  const grid = document.getElementById('grid');
+  const axes = document.getElementById('axes');
+  for (let d = 0; d <= 180; d += 30) {
+    const x = xOf(d);
+    const gl = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    gl.setAttribute('x1', x); gl.setAttribute('x2', x);
+    gl.setAttribute('y1', 30); gl.setAttribute('y2', 260);
+    grid.appendChild(gl);
+    const tx = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    tx.setAttribute('x', x); tx.setAttribute('y', 255);
+    tx.setAttribute('text-anchor', 'middle');
+    tx.setAttribute('class', 'axis-tick');
+    tx.textContent = d + '°';
+    axes.appendChild(tx);
+  }
+  for (let v = -50; v <= 220; v += 50) {
+    const y = yOf(v);
+    const gl = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    gl.setAttribute('x1', X0); gl.setAttribute('x2', X1);
+    gl.setAttribute('y1', y); gl.setAttribute('y2', y);
+    grid.appendChild(gl);
+    const tx = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    tx.setAttribute('x', X0 - 8); tx.setAttribute('y', y + 3);
+    tx.setAttribute('text-anchor', 'end');
+    tx.setAttribute('class', 'axis-tick');
+    tx.textContent = v;
+    axes.appendChild(tx);
+  }
+  const xt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+  xt.setAttribute('x', 500); xt.setAttribute('y', 20);
+  xt.setAttribute('text-anchor', 'middle');
+  xt.setAttribute('class', 'axis-label');
+  xt.textContent = 'Righting moment (kN·m) vs heel angle';
+  axes.appendChild(xt);
+})();
+
+/* ---------- draw curve ---------- */
+(function drawCurve() {
+  const pts = [];
+  const fillPts = [`M ${X0},${YZERO}`];
+  for (let d = 0; d <= 180; d += 1) {
+    const x = xOf(d), y = yOf(monoRM(d));
+    pts.push(`${d === 0 ? 'M' : 'L'}${x.toFixed(1)},${y.toFixed(1)}`);
+    fillPts.push(`L ${x.toFixed(1)} ${y.toFixed(1)}`);
+  }
+  fillPts.push(`L ${X1} ${YZERO} Z`);
+  document.getElementById('curve').setAttribute('d', pts.join(' '));
+  document.getElementById('curveFilled').setAttribute('d', fillPts.join(' '));
+})();
+
+/* ---------- markers ---------- */
+(function drawMarkers() {
+  const markers = document.getElementById('markers');
+  const data = [
+    { deg: 55, label: 'Peak ≈ 88 kN·m' },
+    { deg: 120, label: 'AVS 120°' }
+  ];
+  data.forEach(m => {
+    const x = xOf(m.deg), y = yOf(monoRM(m.deg));
+    const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    dot.setAttribute('cx', x); dot.setAttribute('cy', y);
+    dot.setAttribute('r', 3);
+    dot.setAttribute('fill', '#4a5566');
+    markers.appendChild(dot);
+    const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t.setAttribute('x', x);
+    t.setAttribute('y', y - 8);
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('class', 'axis-tick');
+    t.textContent = m.label;
+    markers.appendChild(t);
+  });
+})();
+
+/* ---------- state + update ---------- */
+const slider = document.getElementById('slider');
+const dot = document.getElementById('dot');
+const boat = document.getElementById('boat');
+const angleLabel = document.getElementById('angleLabel');
+const caption = document.getElementById('caption');
+
+function captionFor(deg) {
+  if (deg < 5) return `<strong>At rest.</strong> The boat sits upright. The keel hangs straight down. No heel, no restoring force needed.`;
+  if (deg < 30) return `<strong>Normal sailing.</strong> The wind heels the boat; the keel swings out. Gravity pulls it back. Righting moment is building.`;
+  if (deg < 55) return `<strong>Approaching peak.</strong> The keel has its longest lever arm here. The boat is fighting hardest to stay upright.`;
+  if (deg < 90) return `<strong>Past peak.</strong> The curve is falling — the keel is losing leverage as the boat lays further over.`;
+  if (deg < 120) return `<strong>Knockdown territory.</strong> The mast is nearly horizontal. Righting moment is collapsing fast.`;
+  if (deg < 150) return `<strong>Past AVS (Angle of Vanishing Stability).</strong> The curve has gone negative. Gravity is now pulling the boat <em>over</em>, not back.`;
+  return `<strong>Inverted and stable.</strong> Upside down with zero righting moment. The crew has to wait for a wave to roll it back.`;
+}
+
+function update(deg) {
+  const rm = monoRM(deg);
+  dot.setAttribute('cx', xOf(deg));
+  dot.setAttribute('cy', yOf(rm));
+  boat.setAttribute('transform', `rotate(${deg}, 500, 320)`);
+  angleLabel.textContent = `${deg.toFixed(1)}°`;
+  caption.innerHTML = captionFor(deg);
+}
+
+slider.addEventListener('input', e => update(parseFloat(e.target.value)));
+
+/* ---------- play ---------- */
+let playing = false, raf = null, startT = 0, startVal = 0;
+const DURATION = 20000; // ms for 0 → 180
+
+function play() {
+  if (playing) {
+    stop(); return;
+  }
+  playing = true;
+  document.getElementById('playBtn').textContent = '⏸ Pause';
+  startT = performance.now();
+  startVal = parseFloat(slider.value);
+  if (startVal >= 180) { slider.value = 0; startVal = 0; }
+  const remaining = (1 - startVal / 180) * DURATION;
+  function step(now) {
+    const elapsed = now - startT;
+    const progress = startVal / 180 + elapsed / DURATION;
+    const deg = Math.min(180, progress * 180);
+    slider.value = deg;
+    update(deg);
+    if (deg >= 180) {
+      stop();
+    } else {
+      raf = requestAnimationFrame(step);
+    }
+  }
+  raf = requestAnimationFrame(step);
+}
+
+function stop() {
+  playing = false;
+  document.getElementById('playBtn').textContent = '▶ Play';
+  if (raf) cancelAnimationFrame(raf);
+}
+
+document.getElementById('playBtn').addEventListener('click', play);
+document.getElementById('resetBtn').addEventListener('click', () => {
+  stop();
+  slider.value = 0;
+  update(0);
+});
+
+update(0);
+</script>
+</body>
+</html>
